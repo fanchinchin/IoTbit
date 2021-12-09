@@ -34,6 +34,12 @@ namespace ESP8266_IoT {
         Qos2
     }
 
+    //插入ifttt配件       
+    let serial_str: string = ""
+    let last_upload_successful: boolean = false
+    let ifttt_connected: boolean = false
+    //結束ifttt配件
+
     let wifi_connected: boolean = false
     let thingspeak_connected: boolean = false
     let kidsiot_connected: boolean = false
@@ -73,6 +79,25 @@ namespace ESP8266_IoT {
     }
 
     let TStoSendStr = ""
+
+    // wait for certain response from ESP8266
+    // ifttt配件
+    function waitResponse(str: string): boolean {
+        let result: boolean = false
+        let time: number = input.runningTime()
+        while (true) {
+            serial_str += serial.readString()
+            if (serial_str.length > 200) {
+                serial_str = serial_str.substr(serial_str.length - 200)
+            }
+            if (serial_str.includes(str)) {
+                result = true
+                break
+            }
+            if (input.runningTime() - time > 30000) break
+        }
+        return result
+    }
 
     // write AT command with CR+LF ending
     function sendAT(command: string, wait: number = 0) {
@@ -344,7 +369,7 @@ namespace ESP8266_IoT {
      */
     //% subcategory=IFTTT weight=8
     //% blockId=postIFTTT block="post IFTTT in Dean with|value1:%value value2:%value2 value3:%value3"
-    export function postIFTTT(value1: string, value2: string, value3: string): void {
+/*    export function postIFTTT(value1: string, value2: string, value3: string): void {
         //let sendST1 = 'https://maker.ifttt.com/trigger/test/with/key/ccDYGg9H2KqdGwU4ly8fJ1'
         //let sendST2 = { "value1": value1, "value2": value2, "value3": value3 } 
         //'"?value1=" + value1 + "&value2=" + value2 + "&value3=" + value3 +'
@@ -366,11 +391,12 @@ namespace ESP8266_IoT {
         serial.writeLine("(AT+ifttt?key=" + key + "&event=" + eventname + "&value1=" + value1 + "&value2=" + value2 + "&value3=" + value3 + ")")
 
     }
-
+*/
     /**
     * Connect to IFTTT and call a Webhook. It would not call anything if it failed to connect to Wifi or IFTTT.
     */
     //% block="IFTTT Webhook|URL/IP = %ip|Event name = %event_name|Key = %key|value1 = %value1|value2 = %value2|value3 = %value3"
+    //% subcategory=IFTTT weight=60
     //% ip.defl=maker.ifttt.com
     //% event_name.defl=your_event_name
     //% key.defl=your_key
@@ -396,7 +422,7 @@ namespace ESP8266_IoT {
     /**
      * on serial received data
      */
-    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function() {
+    serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
         recvString += serial.readString()
         pause(1)
 
