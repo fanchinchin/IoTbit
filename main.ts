@@ -410,7 +410,7 @@ namespace ESP8266_IoT {
             basic.pause(100)
             if (ifttt_connected) {
                 last_upload_successful = false
-                let str: string = `POST /trigger/${event_name}/with/key/${key} HTTP/1.1\u000D\u000AHost: maker.ifttt.com\u000D\u000AContent-Type: application/x-www-form-urlencoded\u000D\u000AContent-Length: 37\u000D\u000A\u000D\u000Avalue1=${value1}&value2=${value2}&value3=${value3}\u000D\u000A`
+                let str: string = `POST /trigger/${event_name}/with/key/${key} HTTP/1.1\u000D\u000AHost: maker.ifttt.com\u000D\u000AContent-Type: application/x-www-form-urlencoded\u000D\u000AContent-Length: 35\u000D\u000A\u000D\u000Avalue1=${value1}&value2=${value2}&value3=${value3}\u000D\u000A`
                 sendAT("AT+CIPSEND=" + (str.length + 2))
                 sendAT(str, 0) // upload data
                 last_upload_successful = waitResponse("OK")
